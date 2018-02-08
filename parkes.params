@@ -1,0 +1,11 @@
+name: Parkes system
+f1: 2000
+f2: 300
+nchan: 1280
+t0: 0
+t1: 30
+gain: 1
+tsys: 25
+raj: 0
+decj: 0
+useAngle: 0
