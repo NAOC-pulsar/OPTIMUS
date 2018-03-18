@@ -15,7 +15,7 @@
 
 double psrangle(double centre_long,double centre_lat,double psr_long,double psr_lat);
 double beamScaling(double angle,float diameter,float freq);
-void digitiseValues(float *chanVals,int nchan,int nbits,unsigned char *chanDigitised);
+void digitiseValues(float *chanVals,int nchan,int nbits,unsigned char *chanDigitised,float level);
 void createPrimaryHeader(fitsfile *fp,float f1,float f2,header *head);
 void deleteUnwantedTables(fitsfile *fp);
 void createSubintHeader(fitsfile *fp,float f1,float f2,int nchan,float tsamp,int nbits);
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
   float *datWts;
   float *datOffs;
   float *datScl;
-
+  float levelSetValue=1;
   double beamRA; 
   double beamDEC;
   float diameter; // Diameter of telescope (m)
@@ -70,6 +70,7 @@ int main(int argc, char *argv[])
   unsigned long angUpdate;
 
   char paramFile[MAX_PARAM_FILES][1024];
+  char fileNames[MAX_PARAM_FILES][1024];
   int  useParamFile=0;
 
   // Read input parameters
@@ -98,6 +99,7 @@ int main(int argc, char *argv[])
 	      printf("Unable to open file: %s\n",argv[i]);
 	      exit(1);
 	    }
+	  strcpy(fileNames[nfiles],argv[i]);
 	  nfiles++;
 	}
 
@@ -111,7 +113,28 @@ int main(int argc, char *argv[])
     }
   nbits = outputHeader->nbits;
   nsampleByte = 8/nbits;
-  printf("Nbits = %d\n",nbits);
+  printf("Nbits = %d level setting = %d\n",nbits,outputHeader->levelSet);
+  if (outputHeader->levelSet==1)
+    {
+      FILE *fin_level;
+      char str[1024];
+      for (i=0;i<nfiles;i++)
+	{
+	  sprintf(str,"%s.levelSetting",fileNames[i]);
+	 
+	  if (!(fin_level = fopen(str,"r")))
+	    {
+	      // No level setting available
+	    }
+	  else
+	    {
+	      printf("Reading level setting from %s\n",str);
+	      fscanf(fin_level,"%f",&levelSetValue);
+	      fclose(fin_level);
+	      break;
+	    }
+	}
+    }
   diameter = outputHeader->diameter;
   
   // Check beam positions
@@ -223,10 +246,12 @@ int main(int argc, char *argv[])
 		      angle[j] = psrangle(beamRA,beamDEC,head[j]->raj_rad,head[j]->decj_rad); // In degrees
 		      scaling[i*nfiles+j] = beamScaling(angle[j],diameter,datFreq[i]); 
 		      if (j==1 && i==10)
-			printf("Return is %g %g %g\n",angle[j],datFreq[i],scaling[i*nfiles+j]);
+			printf("Angle is %g %g %g %g\n",t, angle[j],datFreq[i],scaling[i*nfiles+j]);
 		    }
-		  else
+		  else {
 		    scaling[i*nfiles+j] = 1;
+		    // printf("No scalling angle is %g %g i=%d j=%d\n",t, scaling[i*nfiles+j], i, j);
+		  }
 		}
 	    }
 
@@ -252,7 +277,7 @@ int main(int argc, char *argv[])
 	      chanVals[i]+=(scaling[i*nfiles+j]*readVal);
 	    }
 	} // GH added
-      digitiseValues(chanVals,outputHeader->nchan,nbits,chanDigitised+iblk*outputHeader->nchan/nsampleByte);
+      digitiseValues(chanVals,outputHeader->nchan,nbits,chanDigitised+iblk*outputHeader->nchan/nsampleByte,levelSetValue);
 
       if (debugOut == 1 && t >= debugOutT1 && t < debugOutT2 &&
 	  i >= debugOutF1 && i < debugOutF2)
@@ -341,7 +366,7 @@ int main(int argc, char *argv[])
 
 // Digitise floating values into a small number of bits (currently only 1-bit data has been implemented
 //
-void digitiseValues(float *chanVals,int nchan,int nbits,unsigned char *chanDigitised)
+void digitiseValues(float *chanVals,int nchan,int nbits,unsigned char *chanDigitised,float level)
 {
   int nsamplesByte = 8/nbits;
   unsigned char tc;
@@ -385,7 +410,7 @@ void digitiseValues(float *chanVals,int nchan,int nbits,unsigned char *chanDigit
     {
       for (i=0;i<nchan;i++)
 	{
-	  chanDigitised[i] = (unsigned char)(chanVals[i]*700+100); // Should set the offset correctly
+	  chanDigitised[i] = (unsigned char)(chanVals[i]*level+128); 
 	  //	  if (i==0) printf("Values are: %g %d\n",chanVals[i],chanDigitised[i]);
 	}
     }
@@ -517,12 +542,11 @@ void createSubintHeader(fitsfile *fp,float f1,float f2,int nchan,float tsamp,int
     }
   else
     {
-     //          sprintf(cval,"%dB",nchan*nsblk);
-     sprintf(cval,"2B");
-     fits_update_key(fp, TSTRING, (char *)"TFORM18", cval, NULL, &status); // Was 20
-     fits_report_error(stderr,status);
+      //            sprintf(cval,"%dB",nchan*nsblk);
+      sprintf(cval,"2B");
+      fits_update_key(fp, TSTRING, (char *)"TFORM18", cval, NULL, &status); // Was 20
+      fits_report_error(stderr,status);
     }
-
   fits_update_key_str(fp,(char *)"INT_TYPE",(char *)"TIME",(char *)"",&status);  fits_report_error(stderr,status);
   fits_update_key_str(fp,(char *)"INT_UNIT",(char *)"SEC",(char *)"",&status);  fits_report_error(stderr,status);
   fits_update_key_str(fp,(char *)"SCALE",(char *)"FluxDen",(char *)"",&status);  fits_report_error(stderr,status);

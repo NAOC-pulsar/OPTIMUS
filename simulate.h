@@ -47,7 +47,7 @@ typedef struct header {
   
   // Digitisation
   int   nbits;      // Number of bits
-
+  int   levelSet;   // 0 = no level setting, 1 = set to single value
   // Pulsars
   char predictor[1024]; // Predictor file name
   float p0;
