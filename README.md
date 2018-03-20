@@ -1,3 +1,9 @@
+#take care
+  By now. we fixed the bugs in the code simulateSimplePsr.c
+and we write the new code in simulateSimplePsr_mccV1.c
+This code can simulate the simple pulsar in each dm and period.
+By the way, it used openmp to accelerate the simulate and all of the thread will be used.
+
 # OPTIMUS
 1.web url:
   http://www.atnf.csiro.au/people/ghobbs/optimus/index.html?courseSelect=4
