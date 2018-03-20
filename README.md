@@ -1,4 +1,4 @@
-#take care
+# take care
   By now. we fixed the bugs in the code simulateSimplePsr.c
 and we write the new code in simulateSimplePsr_mccV1.c
 This code can simulate the simple pulsar in each dm and period.
