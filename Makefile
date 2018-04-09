@@ -1,6 +1,6 @@
 cc = gcc
 
-objects = simulateSimplePsr_mcc #inspectBinaryFile simulateSystemNoise createSearchFile simulateRFI simulateComplexPsr
+objects = simulateSimplePsr_mcc inspectBinaryFile simulateSystemNoise createSearchFile simulateRFI simulateComplexPsr
 
 all:$(objects)
 
