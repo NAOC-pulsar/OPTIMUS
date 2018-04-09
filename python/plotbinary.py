@@ -42,22 +42,41 @@ print "simdata.shape",simdata[0,0,0,:,0].shape
 
 temp=np.zeros(64*nsblk)
 
-simdata = np.fromfile(rowdatafile,dtype=np.float32,count=-1).reshape((64,nsblk,1,nchan,1))
+print "start reshape file",datetime.datetime.now()
+simdata = np.fromfile(rowdatafile,dtype=np.float32,count=-1).reshape((64,nsblk,1,nchan,1),order='C')
+print "end reshape file",datetime.datetime.now()
+
+for i in range(64):
+    temp[i*4096:(i+1)*4096]=simdata[i,:,0,1000,0]
+#temp = simdata[1,:,0,1000,0]
+
+print np.max(temp)
+plot(temp)
+show()
 
 
+#print "start reshape file",datetime.datetime.now()
+#simdata=np.zeros((64,nsblk,1,nchan,1))
+#
+#rowdata=np.fromfile(rowdatafile,dtype=np.float32,count=-1)
+#
+#print "rowdata.shape:",rowdata.shape
+#print "simdata.shape",simdata.shape
+#print "simdata.shape",simdata[0,0,0,:,0].shape
 #for i in range(64):
 #    for j in range(nsblk):
 #        simdata[i,j,0,:,0]=rowdata[(i*4096+j)*nchan:(i*4096+j+1)*nchan]
+#
+#print "end reshape file",datetime.datetime.now()
+#
+#
+#for i in range(64*nsblk):
+#    temp[i]=rowdata[i*nchan+2000]
+#
+#
+#plot(temp)
+##plot(data.sum(axis=0))
+##plot(data.sum(axis=1))
+#show()
 
 
-
-
-
-for i in range(64*nsblk):
-    temp[i]=rowdata[i*nchan+2000]
-
-
-plot(temp)
-#plot(data.sum(axis=0))
-#plot(data.sum(axis=1))
-show()
