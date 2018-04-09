@@ -364,14 +364,14 @@ position (in right ascension and declination) will not change.
 
 
   - simulateSimplePsr：
-     function: (usage1) simulate the pulsar with the defaultparameters.
-                        This produces a binary data file (pulsar.dat)
-               (usage2) simulate the pulsar with the parameters in the parameter file (called 
-                        pulsar1.params)
-     usage1: ./simulateSimplePsr -o [binary file *.dat]
-             ./simulateSimplePsr -o pulsar.dat
-     usage2: ./simulateSimplePsr -p [observing sys parameter file *.params] -p [pulsar parameter file *.params] -o [binary file *.dat]
-             ./simulateSimplePsr -p parkes1.params -p pulsar2.params -o pulsar2.dat
+    function: (usage1) simulate the pulsar with the defaultparameters.
+                       This produces a binary data file (pulsar.dat)
+              (usage2) simulate the pulsar with the parameters in the parameter file (called 
+                       pulsar1.params)
+    usage1: ./simulateSimplePsr -o [binary file *.dat]
+            ./simulateSimplePsr -o pulsar.dat
+    usage2: ./simulateSimplePsr -p [observing sys parameter file *.params] -p [pulsar parameter file *.params] -o [binary file *.dat]
+            ./simulateSimplePsr -p parkes1.params -p pulsar2.params -o pulsar2.dat
     out: *.dat
 
   - simulateComplexpsr：

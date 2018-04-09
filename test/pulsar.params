@@ -1,8 +1,8 @@
 name: J1713+0747
-p0: 0.08
+p0: 0.8
 dm: 20
 raj: 4.510914803
 decj: 0.13602659 
 width: 0.01
-flux: 0.0001
+flux: 0.1
 useAngle: 0

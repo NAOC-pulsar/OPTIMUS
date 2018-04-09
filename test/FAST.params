@@ -1,0 +1,12 @@
+name: FAST system
+f1: 0.125
+f2: 1024.125
+nchan: 4096
+t0: 0
+t1: 52.4288
+gain: 1
+tsys: 30
+raj: 0
+decj: 0
+useAngle: 0
+tsamp: 0.0002
