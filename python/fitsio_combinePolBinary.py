@@ -11,8 +11,8 @@ from pylab import *
 import astropy.io.fits as pyfits
 from decimal import Decimal
 import pywt
-from scipy import interpolate
-import pandas as pd
+#from scipy import interpolate
+#import pandas as pd
 
 # get bandpass from fits file
 def get_bandpass(filename):
