@@ -55,6 +55,7 @@ plot(temp)
 show()
 
 
+#temp1=np.zeros(64*nsblk)
 #print "start reshape file",datetime.datetime.now()
 #simdata=np.zeros((64,nsblk,1,nchan,1))
 #
@@ -71,12 +72,12 @@ show()
 #
 #
 #for i in range(64*nsblk):
-#    temp[i]=rowdata[i*nchan+2000]
-#
-#
-#plot(temp)
-##plot(data.sum(axis=0))
-##plot(data.sum(axis=1))
+#    temp1[i]=rowdata[i*nchan+1000]-temp[i]
+##
+##
+#plot(temp1)
+###plot(data.sum(axis=0))
+###plot(data.sum(axis=1))
 #show()
 
 

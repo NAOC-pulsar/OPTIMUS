@@ -141,7 +141,7 @@ int main(int argc,char *argv[])
                 /*printf("*i, j: %d %d\n", i, j);*/
                 tval = (i + k*ngulp)*head->tsamp + dt_dm[j];
                 //tval = (i + k*ngulp)*head->tsamp;
-                phase =  fmod(tval/head->p0, 1.);
+                phase = fmod(tval/head->p0, 1.);
                 if (phase < 0.) phase += 1.;
                 phase -= 0.5;
                 
@@ -157,6 +157,8 @@ int main(int argc,char *argv[])
                  if (head->setFlux==0)
                    profile[i*head->nchan+j]*=amp;
                  else if (sum[j] > 0.)
+                   //tval = (i + k*ngulp)*head->tsamp + dt_dm[j];
+                   //phase_num = (int)(tval/head->p0-fmod(tval/head->p0, 1.));
                    profile[i*head->nchan+j]*=(head->flux[j]/(sum[j]/(double)ncap));
                }
           }

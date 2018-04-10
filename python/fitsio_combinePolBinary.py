@@ -176,15 +176,21 @@ print "normalized ",'max(smoothBandpass):',np.max(smoothBandpass),'min(smoothBan
 #==============================================================
 # read binanry data and use smoothed bandpass changing the profile in each channel
 #binary recorded from float32 to uint8
-simdata=np.zeros((64,nsblk,1,nchan,1))
-rowdata=np.fromfile(rowdatafile,dtype=np.float32,count=-1)
+#simdata=np.zeros((64,nsblk,1,nchan,1))
 
 #print "binarydata.shape:",rowdata.shape
 #print "simdata.shape",simdata.shape
 
-for i in range(64):
-    for j in range(nsblk):
-        simdata[i,j,0,:,0]=rowdata[(i*4096+j)*nchan:(i*4096+j+1)*nchan]
+#rowdata=np.fromfile(rowdatafile,dtype=np.float32,count=-1)
+#for i in range(64):
+#    for j in range(nsblk):
+#        simdata[i,j,0,:,0]=rowdata[(i*4096+j)*nchan:(i*4096+j+1)*nchan]
+
+
+print "start reshape file",datetime.datetime.now()
+simdata = np.fromfile(rowdatafile,dtype=np.float32,count=-1).reshape((64,nsblk,1,nchan,1),order='C')
+print "end reshape file",datetime.datetime.now(
+
 
 print 'simdata.dtype',simdata.dtype,'simadata.max',np.max(simdata),'simdata.min',np.min(simdata)
 
