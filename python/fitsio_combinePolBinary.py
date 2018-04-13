@@ -189,7 +189,7 @@ print "normalized ",'max(smoothBandpass):',np.max(smoothBandpass),'min(smoothBan
 
 print "start reshape file",datetime.datetime.now()
 simdata = np.fromfile(rowdatafile,dtype=np.float32,count=-1).reshape((64,nsblk,1,nchan,1),order='C')
-print "end reshape file",datetime.datetime.now(
+print "end reshape file",datetime.datetime.now()
 
 
 print 'simdata.dtype',simdata.dtype,'simadata.max',np.max(simdata),'simdata.min',np.min(simdata)

@@ -13,6 +13,8 @@
 #include <string.h>
 #include "simulate.h"
 #include <omp.h>
+#include "ran1.c"
+#include "gasdev.c"
 
 int main(int argc,char *argv[])
 {
@@ -24,6 +26,7 @@ int main(int argc,char *argv[])
   
   float width; // smear width 
   float *profile;
+  float *randarr;
   int npsamp;
   int nsamp;
   float tval,phase;
@@ -45,6 +48,9 @@ int main(int argc,char *argv[])
   char format[128];
   int useParamFile=0;
   char paramFile[MAX_PARAM_FILES][1024];
+  int phasenum, nperiods;
+  int idum = -10;
+  
   
   head = (header *)malloc(sizeof(header));
   simulateSetHeaderDefaults(head);
@@ -71,6 +77,7 @@ int main(int argc,char *argv[])
   //
   npsamp = (int)(head->p0/head->tsamp);     //samples in a period
   nsamp = (int)ceil((head->t1 - head->t0)/head->tsamp);  //samples in all file length
+  nperiods = (int)ceil((head->t1 - head->t0)/head->p0);
   dt_dm = (float *)malloc(sizeof(float)*head->nchan);
   chanfref = (float *)malloc(sizeof(float)*head->nchan);
   sum = (double *)malloc(sizeof(double)*head->nchan);
@@ -78,6 +85,7 @@ int main(int argc,char *argv[])
   //profile = (float *)malloc(sizeof(float)*npsamp*head->nchan);
   /*profile = (float *)malloc(sizeof(float)*nsamp*head->nchan);*/
   profile = (float *)malloc(sizeof(float)*ngulp*head->nchan);
+  randarr = (float *)malloc(sizeof(float)*nperiods);
 
   //fref = 0.5*(head->f2+head->f1);
   fref = 0.5*(head->f2+head->f2);
@@ -103,12 +111,24 @@ int main(int argc,char *argv[])
   
   printf("npsamp:%d nsamp:%d chanbw:%f\n",npsamp,nsamp,fabs(chanbw));
   
+/*float rand(int i)*/
+/*{return 1.;}*/
+
+/*#pragma omp parallel for default(shared) private(i) shared(randarr)*/
+for (i=0;i<nperiods;i++)
+{
+float randnum = gasdev(&idum)+1.;
+randarr[i] = randnum > 0 ? randnum : 0;
+}
+
+printf("we passed here");
 
   // Make a simple profile
   for (k=0;k<=(int)(nsamp/ngulp);k++)
   {
     ncap = nsamp - k*ngulp;
     if (ncap > ngulp) ncap = ngulp;
+
  
 //#pragma omp parallel for default(shared) private(i,j) shared(profile, sum)
     for (j=0;j<head->nchan;j++)
@@ -145,8 +165,9 @@ int main(int argc,char *argv[])
                 if (phase < 0.) phase += 1.;
                 phase -= 0.5;
                 
+                phasenum = (int)(tval/head->p0-fmod(tval/head->p0, 1.));
                 //profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/head->width/head->width);
-                profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width);
+                profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width) * randarr[phasenum];
                 sum[j] += profile[(i*head->nchan)+j];
               }
             /*printf("i: %d ,sum[j]: %g\n",i,sum[j]);*/
@@ -158,7 +179,6 @@ int main(int argc,char *argv[])
                    profile[i*head->nchan+j]*=amp;
                  else if (sum[j] > 0.)
                    //tval = (i + k*ngulp)*head->tsamp + dt_dm[j];
-                   //phase_num = (int)(tval/head->p0-fmod(tval/head->p0, 1.));
                    profile[i*head->nchan+j]*=(head->flux[j]/(sum[j]/(double)ncap));
                }
           }
@@ -174,5 +194,7 @@ int main(int argc,char *argv[])
   free(profile);
   free(sum);
   free(dt_dm);
+  free(chanfref);
   free(head);
+  free(randarr);
 }
