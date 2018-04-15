@@ -33,12 +33,11 @@ nsblk=4096
 nchan=4096
 
 simdata=np.zeros((64,nsblk,1,nchan,1))
+#rowdata=np.fromfile(rowdatafile,dtype=np.float32,count=-1)
 
-rowdata=np.fromfile(rowdatafile,dtype=np.float32,count=-1)
-
-print "rowdata.shape:",rowdata.shape
-print "simdata.shape",simdata.shape
-print "simdata.shape",simdata[0,0,0,:,0].shape
+#print "rowdata.shape:",rowdata.shape
+#print "simdata.shape",simdata.shape
+#print "simdata.shape",simdata[0,0,0,:,0].shape
 
 temp=np.zeros(64*nsblk)
 
@@ -46,12 +45,21 @@ print "start reshape file",datetime.datetime.now()
 simdata = np.fromfile(rowdatafile,dtype=np.float32,count=-1).reshape((64,nsblk,1,nchan,1),order='C')
 print "end reshape file",datetime.datetime.now()
 
-for i in range(64):
-    temp[i*4096:(i+1)*4096]=simdata[i,:,0,1000,0]
+#simdata = simdata.reshape(nchan, 64*nsblk).T.reshape((64, nsblk, nchan))
+simdata = simdata.reshape((64, nsblk, nchan))
+
+#for i in range(64):
+    ##temp[i*4096:(i+1)*4096]=simdata[i,:,0,1000,0]
+    #temp[i*4096:(i+1)*4096]=simdata[i,:,1000]
+
+temp = simdata[:,:,1000].flatten()
 #temp = simdata[1,:,0,1000,0]
 
 print np.max(temp)
 plot(temp)
+show()
+
+plot(np.abs(np.fft.rfft(temp)))
 show()
 
 
