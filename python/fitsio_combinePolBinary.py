@@ -15,11 +15,25 @@ import pywt
 #import pandas as pd
 
 # get bandpass from fits file
-def get_bandpass(filename):
+"""
+def get_bandpass(fits):
     secperday = 3600 * 24
     infile=sys.argv[1]
 #    print filename
-    try:
+    #try:
+    NSUBINT = fits[1].read_header()['NAXIS2']
+    data = np.vstack([fits[1].read(row=i, columns=['DATA']) for i in range(NSUBINT)])
+    print 'fitsio read data shape:', data.shape
+    a,b,c,d,e = data.shape
+    if c > 1:
+        data = data[:,:,0,:,:].squeeze().reshape((-1,d))
+    else:
+        data = data.squeeze().reshape((-1,d))
+    l, m = data.shape
+    data = data.reshape(l/64, 64, d).sum(axis=1)
+    data1 = np.sum(data,axis=0)
+    #except:
+    '''
         hdulist = pyfits.open(filename)
         hdu0 = hdulist[0]
         hdu1 = hdulist[1]
@@ -54,10 +68,12 @@ def get_bandpass(filename):
         l, m = data.shape
         data = data.reshape(l/64, 64, d).sum(axis=1)
         data1 = np.sum(data,axis=0)
-    except:
-        print ('Error')
-    else:
-        return data1
+        #print ('Error')
+        #else:
+    '''
+
+    return data1
+"""
 
 
 #smooth the bandpass
@@ -65,7 +81,7 @@ def get_bandpass(filename):
 def smooth_bandpass(bandpass):
     output_nos=[]
     output_bandpass=[]
-    def smooth(sig,threshold = 3, level=6, wavelet='db8'):
+    def smooth(sig,threshold=4.5, level=7, wavelet='db8'):
             sigma = sig.std()
             dwtmatr = pywt.wavedec(data=sig, wavelet=wavelet, level=level)
             denoised = dwtmatr[:]
@@ -165,11 +181,10 @@ fchannel = fits[1].read(rows=[0], columns=['DAT_FREQ'])[0][0][0:nchan]
 
 #==============================================================
 #get bandpass and smooth it
-bandpass=get_bandpass(infile)
-smoothBandpass=smooth_bandpass(bandpass)
-#smoothBandpass=smoothBandpass/max(smoothBandpass)
-smoothBandpass=smoothBandpass/(52.4288/0.0002)
-print "normalized ",'max(smoothBandpass):',np.max(smoothBandpass),'min(smoothBandpass):',np.min(smoothBandpass)
+#bandpass=get_bandpass(fits)
+#smoothBandpass=smooth_bandpass(bandpass)
+#smoothBandpass=smoothBandpass/(52.4288/0.0002)
+#print "normalized ",'max(smoothBandpass):',np.max(smoothBandpass),'min(smoothBandpass):',np.min(smoothBandpass)
 #plot(bandpass,',')
 #plot(smoothBandpass,',')
 #show()
@@ -197,19 +212,19 @@ print "end reshape file",datetime.datetime.now()
 
 print 'simdata.dtype',simdata.dtype,'simadata.max',np.max(simdata),'simdata.min',np.min(simdata)
 
-specindex = 2.5
+specindex = -2.5
 specshap = (fchannel/270.)**(specindex/2.)
 specshap[fchannel<270] = 0.
 #for i in range(nchan):
     #simdata[:,:,0,i,0]=simdata[:,:,0,i,0]*smoothBandpass[i]*(fchannel[i]/270.)
-simdata[:,:,0,:,0]*=(smoothBandpass*specshap)
+#simdata[:,:,0,:,0]*=(smoothBandpass*specshap)
 
 print 'simdata.dtype',simdata.dtype,'simadata.max',np.max(simdata),'simdata.min',np.min(simdata)
-simdata[simdata > 127.] = 127.
-simdata[simdata < 0.] = 0.
+#simdata[simdata > 127.] = 127.
+#simdata[simdata < 0.] = 0.
 
-simdata = simdata.astype(uint8)
-print 'simdata.dtype',simdata.dtype,'simadata.max',np.max(simdata),'simdata.min',np.min(simdata)
+#simdata = simdata.astype(uint8)
+#print 'simdata.dtype',simdata.dtype,'simadata.max',np.max(simdata),'simdata.min',np.min(simdata)
 
 #simdata = np.fromfile(rowdatafile,dtype=np.float32,count=-1).reshape((64,nsblk,1,nchan,1))
 
@@ -239,12 +254,20 @@ data=fits[1].read(rows=[rowindex], columns=['DATA'])
 print 'data.dtype',data[0][0].dtype,'data.max',np.max(data[0][0]),'data.min',np.min(data[0][0])
 #==============================================================
 #for subint 1 : add the binary data and real obs data
-for subindex in range(nsblk):
-    #temp = (data[0][0][subindex,0,:,0]+data[0][0][subindex,1,:,0])/4
-    temp = data[0][0][subindex,0,:,0]/2
-    temp[temp> 127] = 127
-    temp[temp< 0 ] = 0
-    dataout['DATA'][0][subindex,0,:,0] = temp +simdata[rowindex,subindex,0,:,0]
+#for subindex in range(nsblk):
+    #temp = data[0][0][subindex,0,:,0]/2
+    #temp[temp> 127] = 127
+    #temp[temp< 0 ] = 0
+    #dataout['DATA'][0][subindex,0,:,0] = temp +simdata[rowindex,subindex,0,:,0]
+
+tmpdata = data[0][0][:,0,:,0]
+smoothBandpass = smooth_bandpass(tmpdata.sum(axis=0))/nsblk
+tmpdata += (simdata[rowindex,:,0,:,0] * (smoothBandpass*specshap)).astype('uint8') 
+tmpdata /= 2
+tmpdata[tmpdata > 255] = 255
+tmpdata[tmpdata < 0 ] = 0
+dataout['DATA'][0][:,0,:,0] = tmpdata
+
 fitsout.write(dataout)
 #=======================================================================
 
@@ -341,12 +364,22 @@ for rowindex in range(1,nline):
     dataout['DAT_SCL'][0][0:nchan]=fits[1].read(rows=[rowindex], columns=['DAT_SCL'])[0][0][0:nchan]
 
     data=fits[1].read(rows=[rowindex], columns=['DATA'])
-    for subindex in range(nsblk):
-        #temp = (data[0][0][subindex,0,:,0]+data[0][0][subindex,1,:,0])/4 
-        temp = data[0][0][subindex,0,:,0]/2 
-        temp[temp> 127] = 127
-        temp[temp< 0 ] = 0
-        dataout['DATA'][0][subindex,0,:,0] = temp+simdata[rowindex,subindex,0,:,0]
+    #for subindex in range(nsblk):
+        #temp = data[0][0][subindex,0,:,0]/2 
+        #temp[temp> 127] = 127
+        #temp[temp< 0 ] = 0
+        #dataout['DATA'][0][subindex,0,:,0] = temp+simdata[rowindex,subindex,0,:,0]
+
+    tmpdata = data[0][0][:,0,:,0]
+    smoothBandpass = smooth_bandpass(tmpdata.sum(axis=0))/nsblk
+    #plot(smoothBandpass)
+    #show()
+    tmpdata += (simdata[rowindex,:,0,:,0] * (smoothBandpass*specshap)).astype('uint8')
+    tmpdata /= 2
+    tmpdata[tmpdata > 255] = 255
+    tmpdata[tmpdata < 0 ] = 0
+    dataout['DATA'][0][:,0,:,0] = tmpdata
+
     fitsout[-1].append(dataout)
 
 #fitsout.write(dataout)
