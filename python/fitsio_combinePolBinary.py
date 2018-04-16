@@ -160,6 +160,9 @@ fitsout=fitsio.FITS(outfile,'rw')
 dataout = np.zeros(1,dtype=[('TSUBINT','float64'),('OFFS_SUB','float64'),('LST_SUB','float64'),('RA_SUB','float64'),('DEC_SUB','float64'),('GLON_SUB','float64'),('GLAT_SUB','float64'),('FD_ANG','float32'),('POS_ANG','float32'),('PAR_ANG','float32'),('TEL_AZ','float32'),('TEL_ZEN','float32'),('DAT_FREQ','float32',(nchan)),('DAT_WTS','float32',(nchan)),('DAT_OFFS','float32',(nchan)),('DAT_SCL','float32',(nchan)),('DATA','uint8',(nsblk,1,nchan,1))])
 
 
+fchannel = fits[1].read(rows=[0], columns=['DAT_FREQ'])[0][0][0:nchan]
+#print 'DAT_FREQ:', fchannel, fchannel.shape
+
 #==============================================================
 #get bandpass and smooth it
 bandpass=get_bandpass(infile)
@@ -194,8 +197,12 @@ print "end reshape file",datetime.datetime.now()
 
 print 'simdata.dtype',simdata.dtype,'simadata.max',np.max(simdata),'simdata.min',np.min(simdata)
 
-for i in range(nchan):
-    simdata[:,:,0,i,0]=simdata[:,:,0,i,0]*smoothBandpass[i]
+specindex = 2.5
+specshap = (fchannel/270.)**(specindex/2.)
+specshap[fchannel<270] = 0.
+#for i in range(nchan):
+    #simdata[:,:,0,i,0]=simdata[:,:,0,i,0]*smoothBandpass[i]*(fchannel[i]/270.)
+simdata[:,:,0,:,0]*=(smoothBandpass*specshap)
 
 print 'simdata.dtype',simdata.dtype,'simadata.max',np.max(simdata),'simdata.min',np.min(simdata)
 simdata[simdata > 127.] = 127.
