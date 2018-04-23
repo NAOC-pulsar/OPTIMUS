@@ -16,6 +16,7 @@
 #include "ran1.c"
 #include "gasdev.c"
 #include "time.h"
+#include "bessi0.c"
 
 int main(int argc,char *argv[])
 {
@@ -44,6 +45,7 @@ int main(int argc,char *argv[])
   int ngulp = 300000; // the gulp size == 60 s for tsamp = 0.0002s
   int ncap;
   int *randidnum;
+  float kappa;
   
   long pn=0; // Pulse number
   FILE *fout;
@@ -183,7 +185,19 @@ idum = (int) -1 * time(NULL); //take a new idum
 
                 /*float lognormal = exp(gasdev(&randidnum + i*sizeof(int))) / e;*/
                 /*float lognormal = exp(gasdev(&idum)) / e;*/
-                profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width) * randarr[phasenum] * exp(gasdev(&idum)) / e;
+
+                /*profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width) * randarr[phasenum] * exp(gasdev(&idum)) / e;*/
+
+                //change to use von Mises profile instead of Gaussian
+                kappa = 1./width/width;
+                if (kappa > 100.){
+                profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width)/width/sqrt(2.* 3.14159265) * randarr[phasenum]* exp(gasdev(&idum)) / e;
+                }
+                else {
+                profile[(i*head->nchan)+j] = exp(kappa * cos(phase))/2./3.14159265/bessi0(kappa) * randarr[phasenum] * exp(gasdev(&idum)) / e;
+                }
+
+
                 /*profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width) * randarr[phasenum] * exp(gasdev(&randidnum + i*sizeof(int))) / e;*/
                 /*profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width) * randarr[phasenum] * lognormal;*/
                 /*profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width) * randarr[phasenum] ;*/
