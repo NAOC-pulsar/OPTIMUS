@@ -18,16 +18,13 @@ simulateCal:simulateCal.c
 	$(cc) -o simulateCal simulateCal.c simulate.c T2toolkit.c -lm -O3
 #create search file 
 createSearchFile:createSearchFile.c
-	$(cc) -o createSearchFile createSearchFile.c simulate.c T2toolkit.c -L/usr/lib/ -I/usr/include/ -lcfitsio -O3 -lm -w
+	$(cc) -o createSearchFile createSearchFile.c simulate.c T2toolkit.c -L/public/home/mcc/psrsoft/cfitsio/lib -I/public/home/mcc/psrsoft/cfitsio/include -lcfitsio -O3 -lm -w
 #simulate RFI
 simulateRFI:simulateRFI.c
 	$(cc) -o simulateRFI simulateRFI.c simulate.c T2toolkit.c -lm -O3
 #simulate complex pulsar
 simulateComplexPsr:simulateComplexPsr.c
 	$(cc) -o simulateComplexPsr simulateComplexPsr.c simulate.c T2toolkit.c t1polyco.c tempo2pred.c cheby2d.c -lm -O3
-
-createSearchFile:createSearchFile.c
-	$(cc) -o createSearchFile createSearchFile.c simulate.c T2toolkit.c -L/usr/lib/ -I/usr/include/ -lcfitsio -O3 -lm -w
 
 #rm files compiled
 

@@ -212,8 +212,8 @@ print "end reshape file",datetime.datetime.now()
 
 print 'simdata.dtype',simdata.dtype,'simadata.max',np.max(simdata),'simdata.min',np.min(simdata)
 
-specindex = -2.5
-specshap = (fchannel/270.)**(specindex/2.)
+specindex = -1.7
+specshap = (fchannel/270.)**(specindex)
 specshap[fchannel<270] = 0.
 #for i in range(nchan):
     #simdata[:,:,0,i,0]=simdata[:,:,0,i,0]*smoothBandpass[i]*(fchannel[i]/270.)

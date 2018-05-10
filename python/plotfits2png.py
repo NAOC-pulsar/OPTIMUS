@@ -62,7 +62,7 @@ dtype = ''
 print 'freq %s MHz, nchan %d, bw %s MHz' % ( obsfreq, obsnchan, obsbw)
 print 'MJD:', tstart
 print 'fch1, df', fch1, df 
-print tsamp*nsamp
+print 'file length %f tsamp %f nsamp %f' %(tsamp*nsamp,tsamp,nsamp)
 print 'data.shape:', data1.shape
 
 from pylab import *
