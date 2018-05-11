@@ -263,7 +263,7 @@ print 'data.dtype',data[0][0].dtype,'data.max',np.max(data[0][0]),'data.min',np.
 tmpdata = data[0][0][:,0,:,0]
 smoothBandpass = smooth_bandpass(tmpdata.sum(axis=0))/nsblk
 tmpdata += (simdata[rowindex,:,0,:,0] * (smoothBandpass*specshap)).astype('uint8') 
-tmpdata /= 2
+#tmpdata /= 2# set max(tmpdata> 255) =255 rather than tmpdata/2
 tmpdata[tmpdata > 255] = 255
 tmpdata[tmpdata < 0 ] = 0
 dataout['DATA'][0][:,0,:,0] = tmpdata
@@ -375,7 +375,7 @@ for rowindex in range(1,nline):
     #plot(smoothBandpass)
     #show()
     tmpdata += (simdata[rowindex,:,0,:,0] * (smoothBandpass*specshap)).astype('uint8')
-    tmpdata /= 2
+    #tmpdata /= 2 # set max(tmpdata> 255) =255 rather than tmpdata/2
     tmpdata[tmpdata > 255] = 255
     tmpdata[tmpdata < 0 ] = 0
     dataout['DATA'][0][:,0,:,0] = tmpdata
