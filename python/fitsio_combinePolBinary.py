@@ -374,9 +374,12 @@ for rowindex in range(1,nline):
         #dataout['DATA'][0][subindex,0,:,0] = temp+simdata[rowindex,subindex,0,:,0]
 
     tmpdata = data[0][0][:,0,:,0]
-    smoothBandpass = smooth_bandpass(tmpdata.sum(axis=0))/nsblk
     #plot(smoothBandpass)
     #show()
+    smoothBandpass = smooth_bandpass(tmpdata.sum(axis=0))/nsblk
+    fidx = np.arange(len(fchannel))
+    fi = fidx[fchannel >= 270.].min()
+    smoothBandpass /= smoothBandpass[fi]
     tmpdata += (simdata[rowindex,:,0,:,0] * (smoothBandpass*specshap)).astype('uint8')
     #tmpdata /= 2 # set max(tmpdata> 255) =255 rather than tmpdata/2
     tmpdata[tmpdata > 255] = 255
