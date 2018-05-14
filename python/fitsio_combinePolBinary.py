@@ -262,6 +262,9 @@ print 'data.dtype',data[0][0].dtype,'data.max',np.max(data[0][0]),'data.min',np.
 
 tmpdata = data[0][0][:,0,:,0]
 smoothBandpass = smooth_bandpass(tmpdata.sum(axis=0))/nsblk
+fidx = np.arange(len(fchannel))
+fi = fidx[fchannel >= 270.].min()
+smoothBandpass /= smoothBandpass[fi]
 tmpdata += (simdata[rowindex,:,0,:,0] * (smoothBandpass*specshap)).astype('uint8') 
 #tmpdata /= 2# set max(tmpdata> 255) =255 rather than tmpdata/2
 tmpdata[tmpdata > 255] = 255
