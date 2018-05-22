@@ -4,6 +4,11 @@ usage: python *.py filename startfref endfref newfile
 fitsio_cut_freq_time_splitpol.py: cut file have two pols. 
 usage: python *.py filename startchan endchan startTime endTime filename
 
+fastFitsCut.py: cut file have two pols.
+Same function as fitsio_cut_freq_time_splitpol.py but more faster.
+usage: python *.py filename startchan endchan startTime endTime filename
+       python *.py -[help/version]
+
 get_bandpass.py: get bandpass from fits file. 
 usage: def function can be found in fitsio_combinePolBinary.py
 
