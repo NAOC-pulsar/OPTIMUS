@@ -8,65 +8,79 @@ import os
 import pandas as pd
 import progressbar
 
-
-if sys.argv[1].startswith('-'):
-    option = sys.argv[1][1:]
-    if option == 'version': 
-        print 'Version 18/05/22 by mcc'
-    elif option == 'help':  
-        print '''
-usage:
-python fastFitsCut.py startchannel endchannel startsubint endsubint FAST.fits
-example:
-python fastFitsCut.py 1000 3000 0 31 FAST.fits
-output files:
-FAST_cut_AA.fits FAST_cut_BB.fits FAST_cut_total.fits
-'''
+if len(sys.argv) < 2:
+    print '\033[1;31;47mNo action specified.\033[0m'
     sys.exit()
+elif len(sys.argv) == 2:
+    if sys.argv[1].startswith('-'):
+        option = sys.argv[1][1:]
+        # fetch sys.argv[1] but without the first two characters
+        if option == 'version': 
+            print 'Version 18/05/22 by mcc'
+            sys.exit()
+        elif option == 'help':  
+            print \
+    '''
+usage:
+    python fastFitsCut.py [-f1 startchannel] [-f2 endchannel] [-t1 startsubint] [-t2 endsubint] FAST.fits
+    example:
+    python fastFitsCut.py -f1 1000 -f2 3000 -t1 0 -t2 31 FAST.fits
+    python fastFitsCut.py -f1 1000 -f2 3000 -t1 0 FAST.fits
+    (if someone lost, the input will be set to a default num.)
+    output files:
+    FAST_cut_AA.fits FAST_cut_BB.fits FAST_cut_total.fits
+Options include:
+    -version : Prints the version number
+    -help    : Display this help
+    '''
+    else :
+        print \
+    '''\033[1;31;47m
+    Wrong input.
+    You must given a ferq or subint number.
+    \033[0m'''
+    sys.exit()
+else :
+    # read file
+    filename=sys.argv[-1]
+    fits=fitsio.FITS(filename)
+    h0 = fits[0].read_header()
+    h1 = fits[1].read_header()
+    freq=h0['OBSFREQ']
+    nchan_origin=h0['OBSNCHAN']
+    widthfreq=h0['OBSBW']
+    
+    tsample=h1['TBIN']
+    nsblk=h1['NSBLK']
+    npol=h1['NPOL']
+    chan_bw=h1['CHAN_BW']
 
-
-# read file
-filename=sys.argv[5]
-fits=fitsio.FITS(filename)
-h0 = fits[0].read_header()
-h1 = fits[1].read_header()
-freq=h0['OBSFREQ']
-nchan_origin=h0['OBSNCHAN']
-widthfreq=h0['OBSBW']
-
-tsample=h1['TBIN']
-nsblk=h1['NSBLK']
-npol=h1['NPOL']
-chan_bw=h1['CHAN_BW']
-
-
-#set channel num and subint
-if sys.argv[1] == 'all':
+    #default setting
     startfreq = 0
-else:
-    startfreq=int(sys.argv[1])
-
-if sys.argv[2] == 'all':
     endfreq = int(nchan_origin)-1
-else:
-    endfreq=int(sys.argv[2])
+    startn = 0
+    endn = int(h1['NAXIS2']) - 1 # 0 ~ max-1 <==> 1 ~ max
 
-if sys.argv[3] == 'all':
-   startn = 0
-else:
-    startn = int(sys.argv[3])
+    #set channel num and subint
+    for i in range(len(sys.argv)):
+        if sys.argv[i].startswith('-'):
+            option = sys.argv[i][1:]
+            if option == 'f1':
+                startfreq=int(sys.argv[i+1])
+            if option == 'f2':
+                endfreq=int(sys.argv[i+1])
+            if option == 't1':
+                startn = int(sys.argv[i+1])
+            if option == 't2':
+                endn = int(sys.argv[i+1])
 
-if sys.argv[4] == 'all': 
-   endn = int(h1['NAXIS2']) - 1 # 0 ~ max-1 <==> 1 ~ max
-else:
-    endn = int(sys.argv[4])
 
 outname1=filename[0:-5]+'_cut_AA.fits'
 outname2=filename[0:-5]+'_cut_BB.fits'
 outname3=filename[0:-5]+'_cut_total.fits'
 
-print 'input:\nstartchan: {startfreq}\n endchan: {endfreq}\n startsubint: {startn}\n endsubint: {endn}\n'.format(startfreq = startfreq, endfreq = endfreq, startn = startn, endn = endn)
-print 'out put files:\n%s\n%s\n%s' %(outname1,outname2,outname3)
+print 'input:\n    startchan: {startfreq}\n    endchan: {endfreq}\n    startsubint: {startn}\n    endsubint: {endn}\n'.format(startfreq = startfreq, endfreq = endfreq, startn = startn, endn = endn)
+print 'out put files:\n    %s\n    %s\n    %s' %(outname1,outname2,outname3)
 
 chnum=endfreq-startfreq+1
 linenum=endn-startn+1
@@ -405,6 +419,7 @@ for index in bar(range(nrow)):
         fitsout2[-1].append(data4)
         fitsout3[-1].append(data5)
 
+fits.close()
 fitsout1.close()
 fitsout2.close()
 fitsout3.close()
