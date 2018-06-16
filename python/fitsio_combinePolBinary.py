@@ -206,7 +206,7 @@ fchannel = fits[1].read(rows=[0], columns=['DAT_FREQ'])[0][0][0:nchan]
 
 
 print "start reshape file",datetime.datetime.now()
-simdata = np.fromfile(rowdatafile,dtype=np.float32,count=-1).reshape((64,nsblk,1,nchan,1),order='C')
+simdata = np.fromfile(rowdatafile,dtype=np.float32,count=-1).reshape((nline,nsblk,1,nchan,1),order='C')
 print "end reshape file",datetime.datetime.now()
 
 
