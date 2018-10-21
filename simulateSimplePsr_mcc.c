@@ -98,7 +98,9 @@ int main(int argc,char *argv[])
   fref = 0.5*(head->f2+head->f2);
   //open file && write header
   fout = fopen(outName,"wb");
-//  simulateWriteHeader(head,fout);
+  //change
+  //----------------------------------------------------------------------------------------------------
+  /*simulateWriteHeader(head,fout);*/
 
   // calculate the time smear in each channel 
   for (i=0;i<head->nchan;i++)
@@ -126,7 +128,7 @@ for (i=0;i<nperiods;i++)
 float randnum = gasdev(&idum)+1.;
 randarr[i] = randnum > 0 ? randnum : 0;
 }
-printf("***we passed here!!!");
+printf("***we passed here!!!\n");
 
 idum = (int) -1 * time(NULL); //take a new idum
 
@@ -152,7 +154,7 @@ idum = (int) -1 * time(NULL); //take a new idum
         if (chanfref[j] <= minfref)
           {
 
-#pragma omp parallel for default(shared) private(i) shared(profile, sum)
+/*#pragma omp parallel for default(shared) private(i) shared(profile, sum)*/
             for (i=0;i<ncap;i++) //from t=0 ~ t=t1
               {
                 if (head->setFlux==0)
@@ -164,22 +166,26 @@ idum = (int) -1 * time(NULL); //take a new idum
         else
           {
             //width = 2*dt_dm[j]*fabs(chanbw)/(head->f1+(j+0.5)*chanbw) + head->width;chanfref[i]
-            width = fabs(2*dt_dm[j]*chanbw/(chanfref[j])) + head->width;
+            /*width = fabs(2*dt_dm[j]*chanbw/(chanfref[j])) + head->width;*/
+            /*width = head->width;*/
+            width = head->width * 2 * 3.14159265;
             if (j % 100 == 0 ) printf("j: %d width: %f ,dt_dm: %f ,fref: %f\n",j, width,dt_dm[j],chanfref[j]);
 
 /*#pragma omp parallel for default(shared) private(i) shared(profile, sum, randidnum)*/
-#pragma omp parallel for default(shared) private(i) shared(profile, sum)
+/*#pragma omp parallel for default(shared) private(i) shared(profile, sum)*/
             for (i=0;i<ncap;i++) //from t=0 ~ t=t1
               {
                 /*printf("*i, j: %d %d\n", i, j);*/
-                tval = (i + k*ngulp)*head->tsamp + dt_dm[j];
-                //tval = (i + k*ngulp)*head->tsamp;
+                /*tval = (i + k*ngulp)*head->tsamp + dt_dm[j];*/
+                tval = (i + k*ngulp)*head->tsamp;
                 phase = fmod(tval/head->p0, 1.);
                 if (phase < 0.) phase += 1.;
                 phase -= 0.5;
+
+                phase *= 2*3.14159265;
                 
                 phasenum = (int)(tval/head->p0-fmod(tval/head->p0, 1.));
-                //profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/head->width/head->width);
+                /*profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/head->width/head->width);*/
                 
                 /*idx = &randidnum[i];*/
 
@@ -189,13 +195,31 @@ idum = (int) -1 * time(NULL); //take a new idum
                 /*profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width) * randarr[phasenum] * exp(gasdev(&idum)) / e;*/
 
                 //change to use von Mises profile instead of Gaussian
+                
+                /*kappa = 1./width/width;*/
+                /*if (kappa > 100.){*/
+                /*profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width)/width/sqrt(2.* 3.14159265) * randarr[phasenum]* exp(gasdev(&idum)) / e;*/
+                /*}*/
+                /*else {*/
+                /*profile[(i*head->nchan)+j] = exp(kappa * cos(phase))/2./3.14159265/bessi0(kappa) * randarr[phasenum] * exp(gasdev(&idum)) / e;*/
+                /*}*/
+
                 kappa = 1./width/width;
-                if (kappa > 100.){
-                profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width)/width/sqrt(2.* 3.14159265) * randarr[phasenum]* exp(gasdev(&idum)) / e;
+                if (kappa > 80.){
+                profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width)/width/sqrt(2.* 3.14159265);
+                /*profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width);*/
                 }
                 else {
-                profile[(i*head->nchan)+j] = exp(kappa * cos(phase))/2./3.14159265/bessi0(kappa) * randarr[phasenum] * exp(gasdev(&idum)) / e;
+                profile[(i*head->nchan)+j] = exp(kappa * cos(phase))/2./3.14159265/bessi0(kappa) ;
                 }
+
+                
+          /*if (j == 50){*/
+            /*if (i<2*npsamp){*/
+
+                /*printf("profile: %d %g %g %g %g\n ",i,profile[i*head->nchan+j],phase,tval, bessi0(kappa));*/
+                      /*}*/
+                        /*}*/
 
 
                 /*profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width) * randarr[phasenum] * exp(gasdev(&randidnum + i*sizeof(int))) / e;*/
@@ -206,6 +230,21 @@ idum = (int) -1 * time(NULL); //take a new idum
                 sum[j] += profile[(i*head->nchan)+j];
               }
             /*printf("i: %d ,sum[j]: %g\n",i,sum[j]);*/
+
+  /*Make a simple profile*/
+          /*if (j == 50){*/
+            /*for (i=0;i<npsamp;i++){*/
+
+                /*[>tval = (i + k*ngulp)*head->tsamp + dt_dm[j];<]*/
+                /*tval = (i + k*ngulp)*head->tsamp;*/
+                /*phase = fmod(tval/head->p0, 1.);*/
+                /*if (phase < 0.) phase += 1.;*/
+                /*phase -= 0.5;*/
+                
+                /*printf("profile: %d %g %g %g\n ",i,profile[i*head->nchan+j],phase,tval);*/
+                      /*}*/
+                        /*}*/
+ 
 
 #pragma omp parallel for default(shared) private(i) shared(profile, sum)
              for (i=0;i<ncap;i++) //from t=0 ~ t=t1
@@ -219,14 +258,16 @@ idum = (int) -1 * time(NULL); //take a new idum
                    profile[i*head->nchan+j]*=(head->flux[j]/(sum[j]/(double)ncap));
                  /*printf("i,j, (%d, %d) head->flux: %f\n", i, j, head->flux[j]);*/
                  }
-               }
+   }
           }
       }
-    printf("k: %d ,profile[1000]: %g\n; ### sizeof(float) %d",k,profile[1000],
-            sizeof(float));
+    /*printf("k: %d ,profile[998]: %g\n; ### sizeof(float) %d",k,profile[1000],*/
+            /*sizeof(float));*/
+
     fwrite(profile,sizeof(float),ncap*head->nchan,fout);
 
   }
+
 
 
   fclose(fout);
