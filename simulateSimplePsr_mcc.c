@@ -96,8 +96,10 @@ int main(int argc,char *argv[])
 
   //fref = 0.5*(head->f2+head->f1);
   fref = 0.5*(head->f2+head->f2);
+
   //open file && write header
   fout = fopen(outName,"wb");
+
   //change
   //----------------------------------------------------------------------------------------------------
   /*simulateWriteHeader(head,fout);*/
@@ -121,23 +123,23 @@ int main(int argc,char *argv[])
   printf("npsamp:%d nsamp:%d chanbw:%f\n",npsamp,nsamp,fabs(chanbw));
 
 
-idum = -1 * time(NULL); 
+  // get random number
+  idum = -1 * time(NULL); 
 
-for (i=0;i<nperiods;i++)
-{
-float randnum = gasdev(&idum)+1.;
-randarr[i] = randnum > 0 ? randnum : 0;
-}
-printf("***we passed here!!!\n");
+  for (i=0;i<nperiods;i++)
+    {
+      float randnum = gasdev(&idum)+1.;
+      randarr[i] = randnum > 0 ? randnum : 0;
+    }
 
-idum = (int) -1 * time(NULL); //take a new idum
+  printf("***we passed here!!!\n");
+  idum = (int) -1 * time(NULL); //take a new idum
 
-
-for (i=0;i<ngulp;i++)
-{
-randidnum[i] = (int) (ran1(&idum) * ngulp);
-}
-idum = (int) -1 * time(NULL); //take a new idum
+  for (i=0;i<ngulp;i++)
+    {
+      randidnum[i] = (int) (ran1(&idum) * ngulp);
+    }
+  idum = (int) -1 * time(NULL); //take a new idum
 
 
   // Make a simple profile
@@ -165,10 +167,11 @@ idum = (int) -1 * time(NULL); //take a new idum
           }
         else
           {
-            //width = 2*dt_dm[j]*fabs(chanbw)/(head->f1+(j+0.5)*chanbw) + head->width;chanfref[i]
+            /*width = 2*dt_dm[j]*fabs(chanbw)/(head->f1+(j+0.5)*chanbw) + head->width;chanfref[i]*/
             /*width = fabs(2*dt_dm[j]*chanbw/(chanfref[j])) + head->width;*/
             /*width = head->width;*/
-            width = head->width * 2 * 3.14159265;
+            
+            width = (fabs(2*dt_dm[j]*chanbw/(chanfref[j])) + head->width) * 2 * 3.14159265;
             if (j % 100 == 0 ) printf("j: %d width: %f ,dt_dm: %f ,fref: %f\n",j, width,dt_dm[j],chanfref[j]);
 
 /*#pragma omp parallel for default(shared) private(i) shared(profile, sum, randidnum)*/
@@ -200,17 +203,17 @@ idum = (int) -1 * time(NULL); //take a new idum
                 /*if (kappa > 100.){*/
                 /*profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width)/width/sqrt(2.* 3.14159265) * randarr[phasenum]* exp(gasdev(&idum)) / e;*/
                 /*}*/
-                /*else {*/
+                /*else {*/ 
                 /*profile[(i*head->nchan)+j] = exp(kappa * cos(phase))/2./3.14159265/bessi0(kappa) * randarr[phasenum] * exp(gasdev(&idum)) / e;*/
                 /*}*/
 
                 kappa = 1./width/width;
                 if (kappa > 80.){
-                profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width)/width/sqrt(2.* 3.14159265);
+                profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width)/width/sqrt(2.* 3.14159265)* randarr[phasenum] * exp(gasdev(&idum)) / e ;
                 /*profile[(i*head->nchan)+j] = exp(-pow(phase,2)/2.0/width/width);*/
                 }
                 else {
-                profile[(i*head->nchan)+j] = exp(kappa * cos(phase))/2./3.14159265/bessi0(kappa) ;
+                profile[(i*head->nchan)+j] = exp(kappa * cos(phase))/2./3.14159265/bessi0(kappa)* randarr[phasenum] * exp(gasdev(&idum)) / e ;
                 }
 
                 
