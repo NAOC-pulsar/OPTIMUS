@@ -130,6 +130,7 @@ int main(int argc,char *argv[])
     {
       float randnum = gasdev(&idum)+1.;
       randarr[i] = randnum > 0 ? randnum : 0;
+      printf("%d randarr:%f\n",i,randarr[i]);
     }
 
   printf("***we passed here!!!\n");
