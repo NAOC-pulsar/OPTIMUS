@@ -1,5 +1,6 @@
 1.web url:
   http://www.atnf.csiro.au/people/ghobbs/optimus/index.html?courseSelect=4
+  New Readme: https://miao-cc.github.io/optimusRead/
 
 2.complie:
   gcc -O3 -lm -o inspectBinaryFile inspectBinaryFile.c simulate.c T2toolkit.c
