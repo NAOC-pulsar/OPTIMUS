@@ -180,8 +180,8 @@ int main(int argc,char *argv[])
             for (i=0;i<ncap;i++) //from t=0 ~ t=t1
               {
                 /*printf("*i, j: %d %d\n", i, j);*/
-                /*tval = (i + k*ngulp)*head->tsamp + dt_dm[j];*/
-                tval = (i + k*ngulp)*head->tsamp;
+                tval = (i + k*ngulp)*head->tsamp + dt_dm[j];
+                /*tval = (i + k*ngulp)*head->tsamp;*/
                 phase = fmod(tval/head->p0, 1.);
                 if (phase < 0.) phase += 1.;
                 phase -= 0.5;
