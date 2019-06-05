@@ -78,7 +78,7 @@ if __name__ == '__main__':
     Scale = 1
     Percent = 0.6
     infile = 'FP20180104_0-1GHz_Dec-0.5_drifting_0779.fits'
-    Weight = beamWeight(infile, scale=1, percent=0, flag=1)
+    Weight = beamWeight(infile, scale=Scale, percent=Percent, flag=Flag)
     Weight = Weight.reshape(-1)
     f=open('noBeamWeight.dat','wb')
     f.write(Weight)
