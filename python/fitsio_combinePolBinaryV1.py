@@ -10,6 +10,7 @@ import numpy as np
 from array import array
 from decimal import Decimal
 import astropy.io.fits as pyfits
+import beamWeightMould
 #import matplotlib as mpl
 #import matplotlib.pyplot as plt
 #from scipy import interpolate
@@ -57,14 +58,14 @@ starttime=datetime.datetime.now()
 print starttime
 
 #get input files
-if (len(sys.argv) == 3):
+if (len(sys.argv) == 4):
     infile=sys.argv[1]
     rowdatafile=sys.argv[2]
     outfile=sys.argv[3]
     current_path = os.path.dirname(__file__)
     beamWeightFile = current_path+'/noBeamWeight.dat'
 
-elif (len(sys.argv) == 4):
+elif (len(sys.argv) == 5):
     infile         = sys.argv[1]
     rowdatafile    = sys.argv[2]
     beamWeightFile = sys.argv[3] 

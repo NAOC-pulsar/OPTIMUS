@@ -128,7 +128,10 @@ int main(int argc,char *argv[])
 
   for (i=0;i<nperiods;i++)
     {
+      // float randnum = gasdev(&idum)+1.;
       float randnum = gasdev(&idum)+1.;
+      randarr[i] = (randnum+2.12132)/2.12132;
+      //2.12132 is 3 sigma
       randarr[i] = randnum > 0 ? randnum : 0;
       printf("%d randarr:%f\n",i,randarr[i]);
     }
@@ -181,7 +184,7 @@ int main(int argc,char *argv[])
               {
                 /*printf("*i, j: %d %d\n", i, j);*/
                 tval = (i + k*ngulp)*head->tsamp + dt_dm[j];
-                /*tval = (i + k*ngulp)*head->tsamp;*/
+                // tval = (i + k*ngulp)*head->tsamp;
                 phase = fmod(tval/head->p0, 1.);
                 if (phase < 0.) phase += 1.;
                 phase -= 0.5;
